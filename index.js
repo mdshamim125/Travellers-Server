@@ -50,8 +50,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const blogs = client.db('Blog-Post').collection('traveling')
-
+    const blogs = client.db("Blog-Post").collection("traveling");
 
     // jwt generate
     app.post("/jwt", async (req, res) => {
@@ -80,12 +79,27 @@ async function run() {
         .send({ success: true });
     });
 
-       // Get blogs data from db
-       app.get('/recent-blogs', async (req, res) => {
-        const result = await blogs.find().toArray()
-  
-        res.send(result)
-      })
+    // Get blogs data from db
+    app.get("/recent-blogs", async (req, res) => {
+      const result = await blogs.find().toArray();
+
+      res.send(result);
+    });
+
+    // Get all blogs data from db for filtering & searching
+    app.get("/all-blogs", async (req, res) => {
+      const filter = req.query.filter;
+      const search = req.query.search;
+      console.log(filter, search);
+      let query = {
+        title: { $regex: search, $options: "i" },
+      };
+      if (filter) query.category = filter;
+      let options = {};
+      const result = await blogs.find(query, options).toArray();
+
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
