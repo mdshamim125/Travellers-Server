@@ -50,6 +50,9 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    const blogs = client.db('Blog-Post').collection('traveling')
+
+
     // jwt generate
     app.post("/jwt", async (req, res) => {
       const email = req.body;
@@ -76,6 +79,13 @@ async function run() {
         })
         .send({ success: true });
     });
+
+       // Get blogs data from db
+       app.get('/recent-blogs', async (req, res) => {
+        const result = await blogs.find().toArray()
+  
+        res.send(result)
+      })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
