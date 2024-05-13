@@ -164,13 +164,11 @@ async function run() {
     app.post("/wish-list", async (req, res) => {
       const blogData = req.body;
       // console.log(blogData);
-      const existingBlogId = await wishList.findOne({
+      const existingEntry = await wishList.findOne({
+        email: blogData.email,
         blogId: blogData.blogId,
       });
-      const existingEmail = await wishList.findOne({
-        email: blogData.email,
-      });
-      if (existingBlogId && existingEmail) {
+      if (existingEntry) {
         return res.send({
           message: "Blog data already exists in the wish-list",
         });
@@ -184,6 +182,13 @@ async function run() {
       const user = req.params.email;
       const query = { email: user };
       const result = await wishList.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete blog from wish-list for specific user
+    app.delete("/wish-list/:email/:blogId", async (req, res) => {
+      const { email, blogId } = req.params;
+      const result = await wishList.deleteOne({ email, blogId });
       res.send(result);
     });
 
