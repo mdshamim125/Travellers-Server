@@ -68,6 +68,7 @@ async function run() {
     // await client.connect();
 
     const blogs = client.db("Blog-Post").collection("traveling");
+    const wishList = client.db("Blog-Post").collection("wish-list");
 
     // jwt generate
     app.post("/jwt", async (req, res) => {
@@ -154,10 +155,38 @@ async function run() {
     // add a blog data in database
     app.post("/blogs", async (req, res) => {
       const blogData = req.body;
-      console.log(blogData);
+      // console.log(blogData);
       const result = await blogs.insertOne(blogData);
       res.send(result);
     });
+
+    //add blog data in wish-list
+    app.post("/wish-list", async (req, res) => {
+      const blogData = req.body;
+      // console.log(blogData);
+      const existingBlogId = await wishList.findOne({
+        blogId: blogData.blogId,
+      });
+      const existingEmail = await wishList.findOne({
+        email: blogData.email,
+      });
+      if (existingBlogId && existingEmail) {
+        return res.send({
+          message: "Blog data already exists in the wish-list",
+        });
+      }
+      const result = await wishList.insertOne(blogData);
+      res.send(result);
+    });
+
+    // get blog data from wish-list for specific user
+    app.get("/wish-list/:email", async (req, res) => {
+      const user = req.params.email;
+      const query = { email: user };
+      const result = await wishList.find(query).toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log(
