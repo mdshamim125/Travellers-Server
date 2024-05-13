@@ -7,12 +7,29 @@ require("dotenv").config();
 const port = process.env.PORT || 9000;
 const app = express();
 
-const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],
-  credentials: true,
-  optionSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: [
+//     "http://localhost:5173",
+//     "http://localhost:5174",
+//     "https://travel-blog-cf01e.web.app",
+//     "https://travel-blog-cf01e.firebaseapp.com",
+//   ],
+//   credentials: true,
+//   optionSuccessStatus: 200,
+// };
+// app.use(cors(corsOptions));
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://travel-blog-cf01e.web.app",
+      "https://travel-blog-cf01e.firebaseapp.com",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -119,20 +136,20 @@ async function run() {
       res.send(result);
     });
 
-     // update a blog
-     app.put('/blog/:id', async (req, res) => {
-      const id = req.params.id
-      const blogData = req.body
-      const query = { _id: new ObjectId(id) }
-      const options = { upsert: true }
+    // update a blog
+    app.put("/blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const blogData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
       const updateDoc = {
         $set: {
           ...blogData,
         },
-      }
-      const result = await blogs.updateOne(query, updateDoc, options)
-      res.send(result)
-    })
+      };
+      const result = await blogs.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
 
     // add a blog data in database
     app.post("/blogs", async (req, res) => {
@@ -142,7 +159,7 @@ async function run() {
       res.send(result);
     });
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
@@ -155,7 +172,7 @@ run().catch(console.dir);
 
 run().catch(console.dir);
 app.get("/", (req, res) => {
-  res.send("Hello from SoloSphere Server....");
+  res.send("Hello from Traveling Blog Server....");
 });
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
