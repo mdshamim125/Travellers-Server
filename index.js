@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 9000;
 const app = express();
@@ -102,14 +102,37 @@ async function run() {
     });
 
     // get my blogs by email from db
-    app.get("/blogs/:email", async (req, res) => {
+    app.get("/my-blogs/:email", async (req, res) => {
       const user = req.params.email;
       // console.log(user);
       const query = { email: user };
       const result = await blogs.find(query).toArray();
-      console.log(result);
+      // console.log(result);
       res.send(result);
     });
+
+    // Get a single blog data from db using blog id
+    app.get("/blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await blogs.findOne(query);
+      res.send(result);
+    });
+
+     // update a blog
+     app.put('/blog/:id', async (req, res) => {
+      const id = req.params.id
+      const blogData = req.body
+      const query = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updateDoc = {
+        $set: {
+          ...blogData,
+        },
+      }
+      const result = await blogs.updateOne(query, updateDoc, options)
+      res.send(result)
+    })
 
     // add a blog data in database
     app.post("/blogs", async (req, res) => {
