@@ -101,9 +101,20 @@ async function run() {
       res.send(result);
     });
 
-    // Save a blog data in database
+    // get my blogs by email from db
+    app.get("/blogs/:email", async (req, res) => {
+      const user = req.params.email;
+      // console.log(user);
+      const query = { email: user };
+      const result = await blogs.find(query).toArray();
+      console.log(result);
+      res.send(result);
+    });
+
+    // add a blog data in database
     app.post("/blogs", async (req, res) => {
       const blogData = req.body;
+      console.log(blogData);
       const result = await blogs.insertOne(blogData);
       res.send(result);
     });
