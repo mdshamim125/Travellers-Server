@@ -141,6 +141,16 @@ async function run() {
       res.send(result);
     });
 
+    // get featured-blogs from traveling db
+    app.get("/featured-blogs", async (req, res) => {
+      const user = req.params.email;
+      // console.log(user);
+      const query = { email: user };
+      const result = await blogs.find(query).toArray();
+      // console.log(result);
+      res.send(result);
+    });
+
     // Get a single blog data from db using blog id
     app.get("/blog/:id", async (req, res) => {
       const id = req.params.id;
