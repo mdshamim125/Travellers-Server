@@ -69,6 +69,7 @@ async function run() {
 
     const blogs = client.db("Blog-Post").collection("traveling");
     const wishList = client.db("Blog-Post").collection("wish-list");
+    const comment = client.db("Blog-Post").collection("comments");
 
     // jwt generate
     app.post("/jwt", async (req, res) => {
@@ -131,7 +132,7 @@ async function run() {
     });
 
     // get my blogs by email from db
-    app.get("/my-blogs/:email", verifyToken, async (req, res) => {
+    app.get("/my-blogs/:email", async (req, res) => {
       const user = req.params.email;
       // console.log(user);
       const query = { email: user };
@@ -141,7 +142,7 @@ async function run() {
     });
 
     // Get a single blog data from db using blog id
-    app.get("/blog/:id", verifyToken, async (req, res) => {
+    app.get("/blog/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await blogs.findOne(query);
@@ -149,7 +150,7 @@ async function run() {
     });
 
     // update a blog
-    app.put("/blog/:id", verifyToken, async (req, res) => {
+    app.put("/blog/:id", async (req, res) => {
       const id = req.params.id;
       const blogData = req.body;
       const query = { _id: new ObjectId(id) };
@@ -164,7 +165,7 @@ async function run() {
     });
 
     // add a blog data in database
-    app.post("/blogs", verifyToken, async (req, res) => {
+    app.post("/blogs", async (req, res) => {
       const blogData = req.body;
       // console.log(blogData);
       const result = await blogs.insertOne(blogData);
@@ -172,7 +173,7 @@ async function run() {
     });
 
     //add blog data in wish-list
-    app.post("/wish-list", verifyToken, async (req, res) => {
+    app.post("/wish-list", async (req, res) => {
       const blogData = req.body;
       // console.log(blogData);
       const existingEntry = await wishList.findOne({
@@ -189,7 +190,7 @@ async function run() {
     });
 
     // get blog data from wish-list for specific user
-    app.get("/wish-list/:email", verifyToken, async (req, res) => {
+    app.get("/wish-list/:email", async (req, res) => {
       const user = req.params.email;
       const query = { email: user };
       const result = await wishList.find(query).toArray();
@@ -197,9 +198,25 @@ async function run() {
     });
 
     // delete blog from wish-list for specific user
-    app.delete("/wish-list/:email/:blogId", verifyToken, async (req, res) => {
+    app.delete("/wish-list/:email/:blogId", async (req, res) => {
       const { email, blogId } = req.params;
       const result = await wishList.deleteOne({ email, blogId });
+      res.send(result);
+    });
+
+    // users comments in comment db
+    app.post("/comments", async (req, res) => {
+      const commentData = req.body;
+      console.log(commentData);
+      const result = await comment.insertOne(commentData);
+      res.send(result);
+    });
+
+    // get comment data from db for specific blog
+    app.get("/comments/:blogId", async (req, res) => {
+      const blog = req.params.blogId;
+      const query = { blogId: blog };
+      const result = await comment.find(query).toArray();
       res.send(result);
     });
 
