@@ -110,8 +110,20 @@ async function run() {
     });
 
     // Get blogs data from db
+    // app.get("/recent-blogs", async (req, res) => {
+    //   const result = await blogs.find().toArray();
+
+    //   res.send(result);
+    // });
+
+    // Get recent blogs data from the database
     app.get("/recent-blogs", async (req, res) => {
-      const result = await blogs.find().toArray();
+      const limit = parseInt(req.query.limit) || 6;
+      const result = await blogs
+        .find()
+        .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+        .limit(limit)
+        .toArray();
 
       res.send(result);
     });
@@ -181,6 +193,29 @@ async function run() {
       const result = await blogs.insertOne(blogData);
       res.send(result);
     });
+
+    // app.post("/blogs", async (req, res) => {
+    //   try {
+    //     const blogData = req.body;
+
+    //     // Check if req.body contains the expected fields
+    //     console.log("Blog data received:", blogData);
+
+    //     const blogWithTimestamp = {
+    //       ...blogData,
+    //       createdAt: new Date(Date.now()), // Adds current date/time
+    //     };
+
+    //     // console.log("Blog data with timestamp:", blogWithTimestamp); // Log the final data
+
+    //     const result = await blogs.insertOne(blogWithTimestamp);
+
+    //     res.send(result);
+    //   } catch (error) {
+    //     console.error("Error adding blog data:", error);
+    //     res.status(500).send({ error: "Failed to add blog data" });
+    //   }
+    // });
 
     //add blog data in wish-list
     app.post("/wish-list", async (req, res) => {
